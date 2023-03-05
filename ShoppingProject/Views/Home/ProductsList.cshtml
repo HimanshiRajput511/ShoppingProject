@@ -1,0 +1,120 @@
+﻿@model IEnumerable<ShoppingProject.Models.Product>
+
+@{
+    ViewData["Title"] = "ProductsList";
+}
+
+<h1>ProductsList</h1>
+
+<p>
+    @*<a asp-action="Create">Create New</a>*@
+</p>
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.SKU)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Name)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Price)
+            </th>
+            <th>Action</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+
+        {
+            <tr>
+                <td class="SKU">
+                    @Html.DisplayFor(modelItem => item.SKU)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Name)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Price)
+                </td>
+                <td>
+                    <button class="btn-primary BtnAdd" onclick="GetName();">Add</button>
+                    @*<a asp-action="Edit" asp-route-id="@item.ProductId">Edit</a> |
+                <a asp-action="Details" asp-route-id="@item.ProductId">Details</a> |
+                <a asp-action="Delete" asp-route-id="@item.ProductId">Delete</a>*@
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+<div>
+<label>SKUs Scanned</label><input class="form-control col-md-12" id="ProdPur" type="text" readonly />
+</div>
+<div>
+<label>Total Expected </label>
+
+<input type="text" class="form-control col-md-12" id="TotalPrice" readonly />
+</div>
+<div>
+    <button id="BtnReset" class="btn-primary">Reset</button>
+</div>
+<script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.5.0/jquery.min.js"></script>
+<script>
+    var ipd = mbp = atv = vga = 0;
+    var Ttlatv = Ttlvga = 0;
+    $(".BtnAdd").click(function() {
+        var x = $(this).closest("tr").find(".SKU").text();
+        
+        
+       if (x.trim()=="ipd")
+       {
+            ipd++;
+        }
+        else if(x.trim()=="mbp")
+        {
+            mbp++;
+        }
+        else if(x.trim()=="atv")
+        {
+            atv++;
+        }
+        else if(x.trim()=="vga")
+        {
+            vga++;
+        }
+        if (atv % 3 == 0) {
+            Ttlatv = 2*(atv / 3);
+        }
+        else {
+            Ttlatv = (Math.floor(atv / 3)) * 2 + atv % 3;
+        }
+        if (mbp > 0 && vga > 0) {
+            if (mbp > vga) {
+                Ttlvga = 0;
+            }
+            else {
+                Ttlvga = vga - mbp;
+            }
+        }
+            if (mbp == 0 && vga > 0) {
+                Ttlvga = vga;
+            }
+        
+        $("#ProdPur").val("Super iPad:" + ipd + " ,MacBook Pro:" + mbp + " ,Apple TV:" + atv + " ,VGA adapter:" + vga);
+        $.ajax({
+            type: "post",
+            url: '/Home/CalculatePrice',
+            data: { ipd: ipd, atv: Ttlatv, mbp: mbp, vga: Ttlvga },
+            dataType: "text",
+            success: function(html) {
+                $("#TotalPrice").val("$ "+html);
+            }
+        });
+    });
+$("#BtnReset").click(function() {
+     ipd = mbp = atv = vga = 0;
+     $("#TotalPrice").val("");
+     $("#ProdPur").val("");
+});
+</script>
